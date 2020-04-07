@@ -1,5 +1,3 @@
-import { SetStateAction } from "react";
-
 // will define the shape of an item on our budget apps list
 export type BudgetItemObject = {
   date: string;
