@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { BudgetItemAdd } from "../types";
+
 function AddBudgetItem(props: BudgetItemAdd) {
   const [date, setDate] = useState<string>("");
   const [title, setTitle] = useState<string>("");
