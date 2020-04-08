@@ -7,6 +7,6 @@ Thanks for checking this out, and please be on the lookout for new TypeScript fo
 
 ## TODO
 
-- [ ] Install needed dependencies
-- [ ] organize files
+- [x] Install needed dependencies
+- [x] organize files
 - [ ] setup main app component

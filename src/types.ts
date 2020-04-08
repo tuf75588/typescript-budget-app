@@ -30,7 +30,7 @@ export type BudgetTotal = {
   budgetCurrency: string;
 };
 
-export type HomePage = {
+export type HomePageType = {
   // array of objects
   budgetItems: BudgetItemObject[];
   budgetAmount: number;

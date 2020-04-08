@@ -2,14 +2,19 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import ItemList from "./components/item-list";
-
+import HomePage from "./views/home";
 function App() {
-  return <ItemList />;
+  return (
+    <div>
+      <HomePage />
+    </div>
+  );
 }
-export default App;
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
   document.getElementById("root")
 );
+export default App;
