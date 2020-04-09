@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import BudgetTotal from "../components/budget-total";
 import ItemList from "../components/item-list";
 import AddBudgetItem from "../components/add-budget-item";
@@ -37,6 +38,23 @@ function HomePage(props: HomePageType) {
         }
       }
     }
+  };
+
+  const handleItemAdd = (itemToAdd: BudgetItemObject) => {
+    // copy state
+    const newBudgetItemState: BudgetItemObject[] = [...props.budgetItems];
+    const { date, isPaid, price, title, id } = itemToAdd;
+    newBudgetItemState.push({ date, isPaid, price, title, id });
+    props.setBudgetItems(newBudgetItemState);
+    handleStorageType("update", newBudgetItemState);
+  };
+
+  const handleItemRemove = (id: string) => {
+    let itemToRemove = props.budgetItems.filter(
+      (budgetItem: BudgetItemObject) => budgetItem.id !== id
+    );
+    props.setBudgetItems(itemToRemove);
+    handleStorageType("update", itemToRemove);
   };
 
   const handleItemUpdate = (
@@ -86,7 +104,36 @@ function HomePage(props: HomePageType) {
   }, [props.budgetItems]);
   return (
     <div>
-      <h1>Home page!</h1>
+      <header>
+        <BudgetTotal
+          budgetAmount={props.budgetAmount}
+          budgetPeriod={props.budgetPeriod}
+          budgetCurrency={props.budgetCurrency}
+          budgetPaid={budgetPaid}
+        />
+        <Link to="/settings" className="btn btn-settings">
+          <IconSettings />
+        </Link>
+      </header>
+      <ItemList
+        budgetCurrency={props.budgetCurrency}
+        budgetItems={props.budgetItems}
+        handleItemRemove={handleItemRemove}
+        handleItemUpdate={handleItemUpdate}
+      />
+      {showAddItem && (
+        <AddBudgetItem
+          handleAddItem={handleItemAdd}
+          showAddItem={showAddItem}
+          handleShowItem={setShowAddItem}
+        />
+      )}
+      <button
+        className="btn btn-add"
+        onClick={() => setShowAddItem(!showAddItem)}
+      >
+        + <span className="btn-label">Add item</span>
+      </button>
     </div>
   );
 }

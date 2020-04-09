@@ -9,4 +9,4 @@ Thanks for checking this out, and please be on the lookout for new TypeScript fo
 
 - [x] Install needed dependencies
 - [x] organize files
-- [ ] setup main app component
+- [x] setup main app component
