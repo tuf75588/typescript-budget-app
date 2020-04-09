@@ -39,6 +39,39 @@ function HomePage(props: HomePageType) {
     }
   };
 
+  const handleItemUpdate = (
+    value: string,
+    itemProperty: string,
+    id: string
+  ) => {
+    const newBudgetCopy: BudgetItemObject[] = [...props.budgetItems];
+    switch (itemProperty) {
+      case "isPaid":
+        newBudgetCopy.find(
+          (item: BudgetItemObject) => item.id === id
+        )!.isPaid = !newBudgetCopy.find(
+          (item: BudgetItemObject) => item.id === id
+        )!.isPaid;
+        break;
+      case "price":
+        // Find 'price' property and update it with new value
+        newBudgetCopy.find(
+          (item: BudgetItemObject) => item.id === id
+        )!.price = parseInt(value, 10);
+        break;
+      case "title":
+        // Find 'title' property and update it with new value
+        newBudgetCopy.find(
+          (item: BudgetItemObject) => item.id === id
+        )!.title = value;
+        break;
+    }
+
+    props.setBudgetItems(newBudgetCopy);
+
+    handleStorageType("update", newBudgetCopy);
+  };
+
   useEffect(() => {
     let costs = 0;
 
