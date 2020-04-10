@@ -1,133 +1,186 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
+
+// Import components
 import BudgetTotal from '../components/budget-total';
-import ItemList from '../components/item-list';
-import AddBudgetItem from '../components/add-budget-item';
+import BudgetList from '../components/item-list';
+import BudgetItemAdd from '../components/add-budget-item';
 import IconSettings from '../components/icon-settings';
-import { HomePageType, BudgetItemObject } from '../types';
 
-function HomePage(props: HomePageType) {
-  const [budgetPaid, setBudgetPaid] = useState<number>(0);
-  const [showAddItem, setShowAddItem] = useState<boolean>(false);
+// Import interfaces
+import { BudgetItemObject, HomePageType } from '../types';
 
-  const handleStorageType = (
-    task: 'get' | 'update',
-    newState: BudgetItemObject[]
-  ) => {
+const HomePage = (props: HomePageType) => {
+  // Prepare homepage states
+  const [budgetPaid, setBudgetPaid] = React.useState(0);
+  const [showAddItem, setShowAddItem] = React.useState(false);
+
+  // Recalculate total budget
+  React.useEffect(() => {
+    // Prepare total costs
+    let costs = 0;
+
+    // Iterate over items and add their prices to total costs
+    props.budgetItems.forEach((item: BudgetItemObject) => {
+      // Add prices only of item that have been paid
+      if (item.isPaid) {
+        costs += item.price;
+      }
+    });
+
+    // Update budgetPaid state
+    setBudgetPaid(costs);
+  }, [props.budgetItems]); // Watch 'budgetItems' state for changes
+
+  // Handle local/session storage
+  function handleStorage(task: 'get' | 'update', newState: BudgetItemObject[]) {
     if (props.storageMethod === 'local') {
       if (task === 'update') {
+        // Overwrite items in localStorage
         window.localStorage.setItem('budget-app', JSON.stringify(newState));
       } else {
-        const recoveredState = window.localStorage.getItem('budget-app');
-        if (recoveredState) {
-          props.setBudgetItems(JSON.parse(recoveredState));
+        // If there are any data in sessionStorage
+        if (
+          window &&
+          window.localStorage &&
+          window.localStorage.getItem('budget-app')
+        ) {
+          // Extract the data from localStorage
+          const recoveredLocalData = window.localStorage.getItem('budget-app');
+
+          // If there data to be recovered
+          if (recoveredLocalData) {
+            // Update budgetItems state
+            props.setBudgetItems(JSON.parse(recoveredLocalData));
+          }
         }
       }
     } else if (props.storageMethod === 'session') {
       if (task === 'update') {
-        // overwrite items in session storage
+        // Overwrite items in sessionStorage
         window.sessionStorage.setItem('budget-app', JSON.stringify(newState));
       } else {
-        // if there's already data in session storage
-        const recoveredSessionStorage = window.sessionStorage.getItem(
-          'budget-app'
-        );
-        // falsy check
-        if (recoveredSessionStorage) {
-          props.setBudgetItems(JSON.parse(recoveredSessionStorage));
+        // If there are any data in sessionStorage
+        if (
+          window &&
+          window.sessionStorage &&
+          window.sessionStorage.getItem('budget-app')
+        ) {
+          // Extract the data from sessionStorage
+          const recoveredSessionData = window.sessionStorage.getItem(
+            'budget-app'
+          );
+
+          // If there data to be recovered
+          if (recoveredSessionData) {
+            // Update budgetItems state
+            props.setBudgetItems(JSON.parse(recoveredSessionData));
+          }
         }
       }
     }
-  };
+  }
 
-  const handleItemAdd = (itemToAdd: BudgetItemObject) => {
-    // copy state
-    const newBudgetItemState: BudgetItemObject[] = [...props.budgetItems];
-    const { date, isPaid, price, title, id } = itemToAdd;
-    newBudgetItemState.push({ date, isPaid, price, title, id });
-    props.setBudgetItems(newBudgetItemState);
-    handleStorageType('update', newBudgetItemState);
-  };
+  // Handle change of items
+  function handleItemUpdate(value: string, id: string, itemProperty: string) {
+    // Prepare new budgetItems state
+    const newBudgetItemsState: BudgetItemObject[] = [...props.budgetItems];
 
-  const handleItemRemove = (id: string) => {
-    let itemToRemove = props.budgetItems.filter(
-      (budgetItem: BudgetItemObject) => budgetItem.id !== id
-    );
-    props.setBudgetItems(itemToRemove);
-    handleStorageType('update', itemToRemove);
-  };
-
-  const handleItemUpdate = (
-    value: string,
-    itemProperty: string,
-    id: string
-  ) => {
-    const newBudgetCopy: BudgetItemObject[] = [...props.budgetItems];
     switch (itemProperty) {
       case 'isPaid':
-        newBudgetCopy.find(
+        // Find 'isPaid' property and update it with new value
+        newBudgetItemsState.find(
           (item: BudgetItemObject) => item.id === id
-        )!.isPaid = !newBudgetCopy.find(
+        )!.isPaid = !newBudgetItemsState.find(
           (item: BudgetItemObject) => item.id === id
         )!.isPaid;
         break;
       case 'price':
         // Find 'price' property and update it with new value
-        newBudgetCopy.find(
+        newBudgetItemsState.find(
           (item: BudgetItemObject) => item.id === id
         )!.price = parseInt(value, 10);
         break;
       case 'title':
         // Find 'title' property and update it with new value
-        newBudgetCopy.find(
+        newBudgetItemsState.find(
           (item: BudgetItemObject) => item.id === id
         )!.title = value;
         break;
     }
 
-    props.setBudgetItems(newBudgetCopy);
+    // Update budgetItems state
+    props.setBudgetItems(newBudgetItemsState);
 
-    handleStorageType('update', newBudgetCopy);
-  };
+    // Update local/session storage
+    handleStorage('update', newBudgetItemsState);
+  }
 
-  useEffect(() => {
-    let costs = 0;
+  // Handle adding new item
+  function handleAddItem(itemToAdd: BudgetItemObject) {
+    // prepare new budgetItemsState
+    const newBudgetItemsState = [...props.budgetItems];
 
-    // iterate over items and add price to total cost
-    props.budgetItems.forEach((item: BudgetItemObject) => {
-      if (item.isPaid) {
-        costs += item.price;
-      }
+    // Add new item to newBudgetItemsState
+    newBudgetItemsState.push({
+      date: itemToAdd.date,
+      isPaid: itemToAdd.isPaid,
+      price: itemToAdd.price,
+      title: itemToAdd.title,
+      id: itemToAdd.id,
     });
-    setBudgetPaid(costs);
-    // sync the callback with this prop
-  }, [props.budgetItems]);
+
+    // Update budgetItems state
+    props.setBudgetItems(newBudgetItemsState);
+
+    // Update local/session storage
+    handleStorage('update', newBudgetItemsState);
+  }
+
+  // Handle removing existing items
+  function handleItemRemove(id: string) {
+    // Find & remove correct budget item
+    let newBudgetItemsState = props.budgetItems.filter(
+      (item: BudgetItemObject) => item.id !== id
+    );
+
+    // Update budgetItems state
+    props.setBudgetItems(newBudgetItemsState);
+
+    // Update local/session storage
+    handleStorage('update', newBudgetItemsState);
+  }
+
   return (
     <div>
       <header>
         <BudgetTotal
-          budgetAmount={props.budgetAmount}
           budgetPeriod={props.budgetPeriod}
           budgetCurrency={props.budgetCurrency}
+          budgetAmount={props.budgetAmount}
           budgetPaid={budgetPaid}
         />
-        <Link to="/settings" className="btn btn-settings">
+
+        <Link className="btn btn-settings" to="/settings">
           <IconSettings />
         </Link>
       </header>
-      <ItemList
+
+      <BudgetList
         budgetCurrency={props.budgetCurrency}
         budgetItems={props.budgetItems}
-        handleItemRemove={handleItemRemove}
         handleItemUpdate={handleItemUpdate}
+        handleItemRemove={handleItemRemove}
       />
+
       {showAddItem && (
-        <AddBudgetItem
-          handleAddItem={handleItemAdd}
+        <BudgetItemAdd
           showAddItem={showAddItem}
-          handleShowItem={setShowAddItem}
+          handleShowAddItem={setShowAddItem}
+          handleAddItem={handleAddItem}
         />
       )}
+
       <button
         className="btn btn-add"
         onClick={() => setShowAddItem(!showAddItem)}
@@ -136,6 +189,5 @@ function HomePage(props: HomePageType) {
       </button>
     </div>
   );
-}
-
+};
 export default HomePage;

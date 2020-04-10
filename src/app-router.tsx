@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-  BrowserRouter,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import HomePage from './views/home';
 import SettingsPage from './views/settings';
@@ -172,7 +167,7 @@ function AppRouter() {
 
   return (
     <div className="app">
-      <BrowserRouter>
+      <Router>
         <Switch>
           {/* HOMEPAGE */}
           <Route exact path="/">
@@ -199,7 +194,7 @@ function AppRouter() {
             />
           </Route>
         </Switch>
-      </BrowserRouter>
+      </Router>
     </div>
   );
 }

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { BudgetItemAdd } from "../types";
+import React, { useState } from 'react';
+import { nanoid } from 'nanoid';
+import { BudgetItemAdd } from '../types';
 
 function AddBudgetItem(props: BudgetItemAdd) {
-  const [date, setDate] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
+  const [date, setDate] = useState<string>('');
+  const [title, setTitle] = useState<string>('');
   const [price, setPrice] = useState<number>(0);
   const [isPaid, setIsPaid] = useState<boolean>(false);
 
@@ -11,27 +12,34 @@ function AddBudgetItem(props: BudgetItemAdd) {
     event.preventDefault();
 
     // prop handler function called here for creating a new budget item
-    // props.handleAddItem({
-    //   date,
-    //   title,
-    //   price,
-    //   isPaid,
-    // });
+    props.handleAddItem({
+      date,
+      title,
+      price,
+      isPaid,
+      id: nanoid(),
+    });
 
     // reset our states (might switch to useReducer when refactoring)
-    setDate("");
-    setTitle("");
+    setDate('');
+    setTitle('');
     setPrice(0);
     setIsPaid(false);
 
     // close the modal
-    // props.handleShowItem(!props.showAddItem);
+    props.handleShowAddItem(!props.showAddItem);
   };
 
   return (
     <div className="modal-wrapper">
       <div className="modal-dialogue">
-        <button className="btn btn-cross">X</button>
+        <button
+          className="btn btn-cross"
+          onClick={() => props.handleShowAddItem(!props.showAddItem)}
+        >
+          &#x02A2F;
+        </button>
+
         <form onSubmit={handleFormSubmit}>
           <fieldset>
             {/* date when we add our item */}

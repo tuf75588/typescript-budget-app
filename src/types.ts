@@ -55,5 +55,5 @@ export type SettingsPage = {
 export type BudgetItemAdd = {
   showAddItem: boolean;
   handleAddItem: (payload: BudgetItemObject) => void;
-  handleShowItem: React.Dispatch<React.SetStateAction<boolean>>;
+  handleShowAddItem: React.Dispatch<React.SetStateAction<boolean>>;
 };
