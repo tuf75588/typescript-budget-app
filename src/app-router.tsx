@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  BrowserRouter,
+} from 'react-router-dom';
 
 import HomePage from './views/home';
 import SettingsPage from './views/settings';
@@ -103,4 +108,100 @@ function AppRouter() {
     }
     // run on the initial render only
   }, []);
+
+  // this effect will be responsible for updating items if budgetItems or storageMethod changes
+  useEffect(() => {
+    if (storageMethod === 'session') {
+      // save items in sessionStorage
+      window.sessionStorage.setItem(
+        'budget-app',
+        JSON.stringify({ oldItems: budgetItems })
+      );
+      // remove duplicate data in localStorage
+      window.localStorage.removeItem('budget-app');
+    } else if (storageMethod === 'local') {
+      // save in localStorage
+      window.localStorage.setItem(
+        'budget-app',
+        JSON.stringify({
+          oldItems: budgetItems,
+        })
+      );
+      // remove duplicate items in session storage
+      window.sessionStorage.removeItem('budget-app');
+    } else if (storageMethod === 'none') {
+      // remove everything
+      window.sessionStorage.removeItem('budget-app');
+      window.localStorage.removeItem('budget-app');
+    }
+  }, [budgetItems, storageMethod]);
+
+  // last effect, run if setting specific things change, budgetPeriod, budgetCurrency, budgetAmount, storageMethod..
+  useEffect(() => {
+    if (storageMethod === 'session') {
+      // save new settings to session storage
+      window.sessionStorage.setItem(
+        'budget-app-settings',
+        JSON.stringify({
+          oldBudgetPeriod: budgetPeriod,
+          oldBudgetCurrency: budgetCurrency,
+          oldBudgetAmount: budgetAmount,
+          oldStorageMethod: storageMethod,
+        })
+      );
+      // remove duplicate info in localStorage
+      window.localStorage.removeItem('budget-app-settings');
+    } else if (storageMethod === 'local') {
+      window.localStorage.setItem(
+        'budget-app-settings',
+        JSON.stringify({
+          oldBudgetPeriod: budgetPeriod,
+          oldBudgetCurrency: budgetCurrency,
+          oldBudgetAmount: budgetAmount,
+          oldStorageMethod: storageMethod,
+        })
+      );
+      // remove from session-storage
+      window.sessionStorage.removeItem('budget-app-settings');
+    } else if (storageMethod === 'none') {
+      // Remove all previous data from both storages
+      window.localStorage.removeItem('budget-app-settings');
+      window.sessionStorage.removeItem('budget-app-settings');
+    }
+  }, [budgetAmount, budgetCurrency, budgetPeriod, storageMethod]);
+
+  return (
+    <div className="app">
+      <BrowserRouter>
+        <Switch>
+          {/* HOMEPAGE */}
+          <Route exact path="/">
+            <HomePage
+              budgetItems={budgetItems}
+              budgetAmount={budgetAmount}
+              budgetCurrency={budgetCurrency}
+              budgetPeriod={budgetPeriod}
+              setBudgetItems={setBudgetItems}
+              storageMethod={storageMethod}
+            />
+          </Route>
+          {/* Add settings */}
+          <Route path="/settings">
+            <SettingsPage
+              budgetPeriod={budgetPeriod}
+              budgetCurrency={budgetCurrency}
+              budgetAmount={budgetAmount}
+              storageMethod={storageMethod}
+              setBudgetPeriod={setBudgetPeriod}
+              setBudgetCurrency={setBudgetCurrency}
+              setBudgetAmount={setBudgetAmount}
+              setStorageMethod={setStorageMethod}
+            />
+          </Route>
+        </Switch>
+      </BrowserRouter>
+    </div>
+  );
 }
+
+export default AppRouter;
